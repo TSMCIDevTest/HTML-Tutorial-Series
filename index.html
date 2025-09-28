@@ -3,51 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tutorial HTML Project</title>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/ekmas/cs16.css@main/css/cs16.min.css">
+    <title>My Web Page</title>
+    <link rel="stylesheet" href="style.css">
 </html>
 <body>
-    <h1>Welcome to My Tutorial Web Page</h1>
-    <p>This is a Tutorial paragraph to demonstrate the HTML structure.</p>
-    <button id="myButton" class="cs-btn">Click Me!</button>
-    <h2>Yes it is part 1</h2>
-    <section>
-  <button
-    type="button"
-    class="cs-btn"
-    onclick="document.querySelector('.cs-dialog').showModal();"
-  >
-    Open dialog
-  </button>
-  <dialog class="cs-dialog">
-    <form method="dialog">
-      <div class="heading">
-        <div class="wrapper">
-          <div class="icon"></div>
-          <p class="text">Options</p>
-        </div>
-        <button class="cs-btn close"></button>
-      </div>
-      <div class="content">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit.
-        Distinctio ad suscipit aut asperiores laudantium error amet
-        sapiente et tempora numquam voluptates, velit sint quos
-        exercitationem unde obcaecati deleniti maiores officia natus
-        ipsa rem fuga commodi esse. Sunt repellendus ipsa illo a
-        accusantium consequuntur nihil dicta necessitatibus porro,
-        saepe, sed repudiandae!
-      </div>
-      <menu class="footer-btns">
-        <button class="cs-btn">OK</button>
-        <button class="cs-btn">Cancel</button>
-        <button class="cs-btn">Apply</button>
-      </menu>
-    </form>
-  </dialog>
-</section>
-<div class="cs-checkbox">
-  <input id="checkbox" type="checkbox" />
-  <label class="cs-checkbox__label" for="checkbox">Checkbox</label>
-</div>
+    <ul>
+  <li><a href="default.asp">Home</a></li>
+  <li><a href="news.asp">News</a></li>
+  <li><a href="contact.asp">Contact</a></li>
+  <li><a href="about.asp">About</a></li>
+</ul>
+    <h1>Welcome to My Web Page</h1>
+    <p>This is a sample paragraph to demonstrate the HTML structure.</p>
+    
+    <div>
+        <button id="button">Click Me!</button>
+    </div>
 </body>
 </html>
