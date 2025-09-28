@@ -3,21 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Web Page</title>
-    <link rel="stylesheet" href="style.css">
-</html>
-<body>
-    <ul>
-  <li><a href="default.asp">Home</a></li>
-  <li><a href="news.asp">News</a></li>
-  <li><a href="contact.asp">Contact</a></li>
-  <li><a href="about.asp">About</a></li>
-</ul>
-    <h1>Welcome to My Web Page</h1>
-    <p>This is a sample paragraph to demonstrate the HTML structure.</p>
-    
-    <div>
-        <button id="button">Click Me!</button>
+    <title>Fresh Memes Every 30 Seconds</title>
+    <!-- Load Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Apply Inter font and make the body fill the viewport */
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background-color: #f7fafc; /* Light gray background */
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center p-4">
+
+    <!-- Main Container -->
+    <div class="w-full max-w-lg bg-white shadow-xl rounded-xl p-6 md:p-8 text-center border-t-8 border-indigo-500">
+
+        <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2">
+            The Meme Machine 🤖
+        </h1>
+        <p id="memeTitle" class="text-sm text-indigo-600 font-medium mb-6 animate-pulse">
+            Loading your first meme...
+        </p>
+
+        <!-- Meme Image Display -->
+        <div id="memeContainer" class="relative w-full h-80 flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden shadow-inner mb-6">
+            <img id="memeImage" src="https://placehold.co/400x400/eeeeee/333333?text=Standby" alt="A randomly loaded meme" class="max-h-full max-w-full object-contain transition-opacity duration-500" />
+            <div id="loadingOverlay" class="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-70 text-white transition-opacity duration-300">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span id="loaderText">Fetching next meme...</span>
+            </div>
+        </div>
+
+        <!-- Timer/Status Indicator -->
+        <div class="text-sm font-semibold text-gray-500">
+            Next refresh in: <span id="countdown" class="text-indigo-600">30</span> seconds
+        </div>
+        <div id="errorBox" class="mt-4 p-3 bg-red-100 text-red-700 rounded-lg hidden">
+            <p>Error: Could not fetch meme data. Please check the network connection.</p>
+        </div>
+
     </div>
+
+    <script>
+        // Imgflip API endpoint for getting popular meme templates
+        const API_URL = 'https://api.imgflip.com/get_memes';
+        const REFRESH_INTERVAL_MS = 30000; // 30 seconds
+        
+        // DOM element references
+        const memeImage = document.getElementById('memeImage');
+        const memeTitle = document.getElementById('memeTitle');
+        const countdownElement = document.getElementById('countdown');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const loaderText = document.getElementById('loaderText');
+        const errorBox = document.getElementById('errorBox');
+        
+        let countdownTimer;
+
+        /**
+         * Converts the loading overlay to a visible loading state.
+         * @param {string} text - The text to display in the loader.
+         */
+        function showLoading(text) {
+            loadingOverlay.classList.remove('opacity-0', 'hidden');
+            loadingOverlay.classList.add('opacity-100');
+            loaderText.textContent = text;
+            errorBox.classList.add('hidden');
+        }
+
+        /**
+         * Hides the loading overlay.
+         */
+        function hideLoading() {
+            loadingOverlay.classList.remove('opacity-100');
+            loadingOverlay.classList.add('opacity-0');
+            setTimeout(() => {
+                loadingOverlay.classList.add('hidden');
+            }, 300); // Wait for the transition to complete
+        }
+
+        /**
+         * Fetches a random meme template from Imgflip and updates the UI.
+         */
+        async function fetchMeme() {
+            showLoading("Fetching next meme...");
+            
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const json = await response.json();
+
+                if (json.success && json.data && json.data.memes.length > 0) {
+                    // 1. Pick a random meme from the array
+                    const memes = json.data.memes;
+                    const randomIndex = Math.floor(Math.random() * memes.length);
+                    const randomMeme = memes[randomIndex];
+
+                    // 2. Update the UI
+                    memeImage.onload = () => {
+                        hideLoading();
+                    };
+                    memeImage.onerror = () => {
+                        hideLoading();
+                        memeImage.src = "https://placehold.co/400x400/FF5733/ffffff?text=Image+Load+Failed";
+                        memeTitle.textContent = "Oops! Image failed to load.";
+                    };
+
+                    memeImage.style.opacity = '0';
+                    setTimeout(() => {
+                        memeImage.src = randomMeme.url;
+                        memeTitle.textContent = `Meme Template: ${randomMeme.name}`;
+                        memeImage.style.opacity = '1';
+                    }, 300); // Fade out old, set new source, then fade in on load
+                } else {
+                    throw new Error("API response was successful but contained no meme data.");
+                }
+
+            } catch (error) {
+                console.error("Error fetching meme:", error);
+                hideLoading();
+                errorBox.classList.remove('hidden');
+                memeTitle.textContent = "Failed to load any memes.";
+                clearInterval(countdownTimer); // Stop the interval on failure
+            }
+        }
+
+        /**
+         * Starts the countdown display.
+         */
+        function startCountdown() {
+            let timeLeft = REFRESH_INTERVAL_MS / 1000;
+            countdownElement.textContent = timeLeft;
+
+            if (countdownTimer) {
+                clearInterval(countdownTimer);
+            }
+
+            countdownTimer = setInterval(() => {
+                timeLeft--;
+                countdownElement.textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    timeLeft = REFRESH_INTERVAL_MS / 1000;
+                    countdownElement.textContent = timeLeft;
+                    // The main interval will call fetchMeme(), so we just reset the display here.
+                }
+            }, 1000);
+        }
+
+        /**
+         * Initializes the application.
+         */
+        function init() {
+            // Fetch the first meme immediately
+            fetchMeme(); 
+            startCountdown();
+
+            // Set the recurring interval for fetching new memes
+            setInterval(fetchMeme, REFRESH_INTERVAL_MS);
+        }
+
+        // Start the process when the window loads
+        window.onload = init;
+    </script>
 </body>
 </html>
